@@ -4,6 +4,14 @@
   "description": "Query parser extracted from Riemann and ported to Node",
   "main": "index.js",
   "scripts": {
+    "vendor:grammar-download": "curl --silent -o build/Query.g4 https://raw.githubusercontent.com/riemann/riemann/master/resources/query.g4 >/dev/null",
+    "vendor:grammar-patch": "patch -p0 < ./Query.g4.patch",
+    "vendor:grammar": "npm run vendor:grammar-download && npm run vendor:grammar-patch",
+    "vendor:antlr": "curl --silent -o build/antlr-4.5.3-complete.jar http://www.antlr.org/download/antlr-4.5.3-complete.jar >/dev/null",
+    "build:clean": "rm -rf build/ && rm -rf lib/",
+    "build:mkdirs": "mkdir -p build && mkdir -p lib/antlr",
+    "build:parser": "./bin/antlr -Dlanguage=JavaScript -o lib/antlr build/Query.g4",
+    "build": "npm run build:mkdirs && npm run vendor:grammar && npm run vendor:antlr && npm run build:parser",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

@@ -1,0 +1,39 @@
+--- build/Query.g4	2016-09-14 20:34:34.839780639 -0700
++++ build/Query.g4.patched	2016-09-14 20:34:29.595378878 -0700
+@@ -44,8 +44,8 @@
+ // Values -----------------------------------------------------------
+ 
+ value
+-  : true
+-  | false
++  : r_true
++  | r_false
+   | nil
+   | number
+   | string
+@@ -54,19 +54,19 @@
+ 
+ field : NAME ;
+ string : STRING ;
+-true : TRUE ;
+-false : FALSE ;
++r_true : TRUE ;
++r_false : FALSE ;
+ nil : NIL ;
+ 
+ number
+-    : float
++    : r_float
+     | bign
+-    | long
++    | r_long
+     ;
+ 
+-float : FLOAT;
++r_float : FLOAT;
+ bign : BIGN;
+-long : LONG;
++r_long : LONG;
+ 
+ 
+ // Lexers -------------------------------------------------------------

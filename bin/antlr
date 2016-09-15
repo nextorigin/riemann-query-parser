@@ -1,0 +1,1 @@
+java -Xmx500M -cp "./build/antlr-4.5.3-complete.jar:$CLASSPATH" org.antlr.v4.Tool $@
