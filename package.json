@@ -1,0 +1,24 @@
+{
+  "name": "riemann-query-parser",
+  "version": "1.0.0",
+  "description": "Query parser extracted from Riemann and ported to Node",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/nextorigin/riemann-query-parser.git"
+  },
+  "keywords": [
+    "riemann",
+    "godot",
+    "godot2",
+    "query",
+    "streams",
+    "streaming",
+    "filter"
+  ],
+  "author": "doublerebel",
+  "license": "MIT"
+}
