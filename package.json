@@ -14,7 +14,7 @@
     "build:parser-tidy": "mv lib/antlr/build/* lib/antlr && rm -rf lib/antlr/build",
     "build:coffee": "iced --bare --map --runtime node -o lib/ -c src/",
     "build": "npm run build:mkdirs && npm run vendor:grammar && npm run vendor:antlr && npm run build:parser && npm run build:parser-tidy && npm run build:coffee",
-    "watch": "iced --watch --bare --map --runtime node -o lib/ -c src/*",
+    "watch": "iced --watch --bare --map --runtime node -o lib/ -c src/",
     "test:modules": "mocha --recursive --compilers coffee:iced-coffee-script/register --require iced-coffee-coverage/register-istanbul test/",
     "test:coverage": "istanbul report",
     "test": "npm run test:modules && npm run test:coverage"
