@@ -11,7 +11,8 @@
     "build:clean": "rm -rf build/ && rm -rf lib/",
     "build:mkdirs": "mkdir -p build && mkdir -p lib/antlr",
     "build:parser": "./bin/antlr -Dlanguage=JavaScript -o lib/antlr build/Query.g4",
-    "build": "npm run build:mkdirs && npm run vendor:grammar && npm run vendor:antlr && npm run build:parser",
+    "build:parser-tidy": "mv lib/antlr/build/* lib/antlr && rm -rf lib/antlr/build",
+    "build": "npm run build:mkdirs && npm run vendor:grammar && npm run vendor:antlr && npm run build:parser && npm run build:parser-tidy",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
