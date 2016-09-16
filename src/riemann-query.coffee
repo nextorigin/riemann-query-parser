@@ -1,5 +1,6 @@
 first      = (arr) -> arr[0]
 second     = (arr) -> arr[1]
+last       = (arr) -> arr[-1..]
 count      = (arr) -> arr.length
 sequential = (arr) -> Array.isArray arr
 remove     = (pred, arr) -> (item for item in arr when not pred item)
@@ -8,6 +9,8 @@ isString   = (isType "string")
 isNumber   = (isType "number")
 re_pattern = (str) -> (new RegExp str, "g").toString()
 re_seq     = (regexp, str) -> str.match regexp
+unquote    = (str) -> (isString str) and ((first str) is '"' and (last str) is '"') and str[1...-1] or str
+identity   = (obj) -> obj
 list       = (items...) -> items
 cons       = (x, arr) -> new Array x, arr...
 join       = (sep, arr) -> if arr then arr.join sep else sep.join ""
@@ -80,7 +83,7 @@ ast_regex = (type, terms) ->
   [
     type
     (do -> switch type
-      when "regex" then re_pattern (antlr_ast pattern)
+      when "regex" then re_pattern (unquote (antlr_ast pattern))
       when "like"  then (antlr_ast pattern))
     (antlr_ast string)
   ]
