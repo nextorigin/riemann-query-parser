@@ -224,6 +224,9 @@ js_ast = (ast) ->
     else
       [node_type, terms...] = ast
 
+      switch node_type
+        when "!" then terms = (list null, (first terms))
+
       (join " ", (list "(",
                        (js_ast (first terms)),
                        (node_type),
