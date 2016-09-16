@@ -15,7 +15,9 @@
     "build:coffee": "iced --bare --map --runtime node -o lib/ -c src/",
     "build": "npm run build:mkdirs && npm run vendor:grammar && npm run vendor:antlr && npm run build:parser && npm run build:parser-tidy && npm run build:coffee",
     "watch": "iced --watch --bare --map --runtime node -o lib/ -c src/*",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test:modules": "mocha --recursive --compilers coffee:iced-coffee-script/register --require iced-coffee-coverage/register-istanbul test/",
+    "test:coverage": "istanbul report",
+    "test": "npm run test:modules && npm run test:coverage"
   },
   "repository": {
     "type": "git",
@@ -37,6 +39,11 @@
     "lodash.escaperegexp": "^4.1.2"
   },
   "devDependencies": {
-    "iced-coffee-script": "^108.0.11"
+    "chai": "^3.5.0",
+    "coveralls": "^2.11.12",
+    "iced-coffee-coverage": "^1.0.3",
+    "iced-coffee-script": "^108.0.11",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.0.2"
   }
 }
