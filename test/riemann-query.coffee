@@ -61,30 +61,21 @@ describe "js-ast-test", ->
       # Tags
       "tagged \"cat\"":              '(event.tags.indexOf("cat") !== -1)'
 
-      # # Boolean operators
-      # "not host = 1":                (not (= (:host event) 1))
-      # "host = 1 and state = 2":      (and (= (:host event) 1)
-      #                                    (= (:state event) 2))
-      # "host = 1 or state = 2":       (or (= (:host event) 1)
-      #                                   (= (:state event) 2))
+      # Boolean operators
+      "not host = 1":                '(  ! ( event["host"] == 1 ) )'
+      "host = 1 and state = 2":      '( ( event["host"] == 1 ) && ( event["state"] == 2 ) )'
+      "host = 1 or state = 2":       '( ( event["host"] == 1 ) || ( event["state"] == 2 ) )'
 
-      # # Grouping
-      # "(host = 1)":                  (= (:host event) 1)
-      # "((host = 1))":                (= (:host event) 1)
+      # Grouping
+      "(host = 1)":                  '( event["host"] == 1 )'
+      "((host = 1))":                '( event["host"] == 1 )'
 
-      # # Precedence
-      # "not host = 1 and host = 2":   (and (not (= (:host event) 1))
-      #                                    (= (:host event) 2))
+      # Precedence
+      "not host = 1 and host = 2":   '( (  ! ( event["host"] == 1 ) ) && ( event["host"] == 2 ) )'
 
-      # "not host = 1 or host = 2 and host = 3":
-      # (or (not (= (:host event) 1))
-      #     (and (= (:host event) 2) (= (:host event) 3)))
+      "not host = 1 or host = 2 and host = 3": '( (  ! ( event["host"] == 1 ) ) || ( ( event["host"] == 2 ) && ( event["host"] == 3 ) ) )'
 
-      # "not ((host = 1 or host = 2) and host = 3)":
-      # (not (and (or (= (:host event) 1)
-      #               (= (:host event) 2))
-      #           (= (:host event) 3)))
-      # ))
+      "not ((host = 1 or host = 2) and host = 3)": '(  ! ( ( ( event["host"] == 1 ) || ( event["host"] == 2 ) ) && ( event["host"] == 3 ) ) )'
 
     for expression, expected of expressions
       compiled = (js_ast clj_ast ast expression)
