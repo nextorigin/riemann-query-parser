@@ -1,17 +1,17 @@
-escapeRegExp = require "lodash.escaperegexp"
-antlr_parser = require "./index"
-
-
 first      = (arr) -> arr[0]
 second     = (arr) -> arr[1]
 count      = (arr) -> arr.length
 sequential = (arr) -> Array.isArray arr
-remove     = (pred, arr) -> (item for item in arr when typeof item isnt pred)
+remove     = (pred, arr) -> (item for item in arr when not pred item)
+isType     = (type) -> (item) -> typeof item is type
+isString   = (isType "string")
+isNumber   = (isType "number")
 re_pattern = (str) -> (new RegExp str, "g").toString()
+re_seq     = (regexp, str) -> str.match regexp
 list       = (items...) -> items
 cons       = (x, arr) -> new Array x, arr...
-
-keywords  = [
+join       = (sep, arr) -> if arr then arr.join sep else sep.join ""
+keywords   = [
   "state"
   "host"
   "service"
@@ -22,7 +22,7 @@ keywords  = [
   "ttl"
   "meta"
 ]
-keyword = (word) -> word in keywords
+keyword    = (word) -> word in keywords
 
 
 class RiemannQuery
@@ -30,8 +30,11 @@ class RiemannQuery
   "The query parser. Parses strings into ASTs, and converts ASTs to functions
   which match events."
 ###
+escapeRegExp = require "lodash.escaperegexp"
 
-ast_predicate = (terms...) ->
+antlr_parser = require "./index"
+
+ast_predicate = (terms) ->
   # "Rewrites predicates with and/or/not to normal Clojure forms."
   switch
     # Basic predicate
@@ -89,11 +92,12 @@ antlr_ast = (tree) ->
   passed to various query compilers. Turns literals into their equivalent JVM
   types, and eliminates some unnecessary parser structure."
   ###
-  [node_type, terms] = tree
+  [node_type, terms...] = tree
   # (prn :antlr_ast node_type terms)
+
   switch node_type
     # Unwrapping transformations: dropping unnecessary parse tree wrapper nodes
-    when "primary"        then (antlr_ast (first (remove "string", terms)))
+    when "primary"        then (antlr_ast (first (remove isString, terms)))
     when "simple"         then (antlr_ast (first terms))
     when "value"          then (antlr_ast (first terms))
     when "number"         then (antlr_ast (first terms))
@@ -114,16 +118,16 @@ antlr_ast = (tree) ->
     when "like"           then (ast_regex "like",   terms)
 
     # Drop redundant terms from prefix expressions
-    when "tagged"         then (list :tagged (antlr_ast (second terms)))
+    when "tagged"         then (list "tagged", (antlr_ast (second terms)))
 
     # Value transformations: coercing strings to JVM types.
-    when "long"           then (parseInt (first terms))
-    when "float"          then (parseFloat (first terms))
+    when "r_long"         then (parseInt (first terms))
+    when "r_float"        then (parseFloat (first terms))
     when "bign"           then (parseInt (first terms))
     when "string"         then (String (first terms))
     when "field"          then (String (first terms))
-    when "true"           then true
-    when "false"          then false
+    when "r_true"         then true
+    when "r_false"        then false
     when "nil"            then null
 
     # And by default, recurse into sub-expressions.
@@ -136,42 +140,42 @@ antlr_ast = (tree) ->
 
 ast = (str) ->
   # "Takes a string to a general AST."
-  antlr_ast antlr_parser str
-
+  (antlr_ast antlr_parser str)
 
 ## This code transforms the general AST into Clojure code.
+
 clj_ast_guarded_prefix = (f, check, a_b) ->
   # "Like prefix, but inserts a predicate check around both terms."
   [a, b] = a_b
   ###
-  (list ''let [''a (clj_ast a)
-              ''b (clj_ast b)]
-        (list ''and
-              (list check ''a)
-              (list check ''b)
-              (list f ''a ''b))))
+  (list 'let ['a (clj_ast a)
+              'b (clj_ast b)]
+        (list 'and
+              (list check 'a)
+              (list check 'b)
+              (list f 'a 'b))))
   ###
-  (list f, a, b)
+  (list f, (clj_ast a), (clj_ast b))
 
 clj_ast_field = (field) ->
   ###
   "Takes a keyword field name and emits an expression to extract that field
   from an 'event map, e.g. `(:fieldname event)`."
   ###
-  "event[#{field}]"
+  "event[\"#{field}\"]"
 
 clj_ast_tagged = (tag) ->
   # "Takes a tag and emits an expression to match that tag in an event."
-  "(event.tags.indexOf(#{tag}) !== -1)"
+  "(event.tags.indexOf(\"#{tag}\") !== -1)"
 
 make_regex = (str) ->
   # "Convert a string like \"foo%\" into /^foo.*$/"
-  tokens = /%|[^%]+/.match str
+  tokens = (re_seq /%|[^%]+/g, str[1...-1])
   pairs  = tokens.map (token) ->
     (switch token
        when "%" then ".*"
        else escapeRegExp token)
-  (re_pattern ("^" + (pairs.join "") + "$"))
+  (re_pattern ("^" + (join pairs) + "$"))
 
 clj_ast_regex_match = (pattern_transformer, pattern_field) ->
   ###
@@ -182,7 +186,7 @@ clj_ast_regex_match = (pattern_transformer, pattern_field) ->
   [pattern, field] = pattern_field
   str              = (clj_ast field)
   regexp           = (pattern_transformer pattern)
-  "#{regexp}.exec(#{str})"
+  "!!#{regexp}.exec(#{str})"
 
 clj_ast = (ast) ->
   # "Rewrites an AST to eval-able Clojure forms."
@@ -197,25 +201,34 @@ clj_ast = (ast) ->
 
     # Lists, on the other hand
     else
-      [node_type, terms] = ast
-      ## Transform to JS
-      return (infix nodetype, terms) unless (sequential terms)
-      ##
+      [node_type, terms...] = ast
+
       switch node_type
-        when "=="         then (list '==', (terms.map clj_ast))
-        when "<"          then (clj_ast_guarded_prefix "<", "number", terms)
-        when ">"          then (clj_ast_guarded_prefix ">", "number", terms)
-        when "<="         then (clj_ast_guarded_prefix "<=", "number", terms)
-        when ">="         then (clj_ast_guarded_prefix ">=", "number", terms)
+        when "=="         then (list '==', (terms.map clj_ast)...)
+        when "<"          then (clj_ast_guarded_prefix "<",  isNumber, terms)
+        when ">"          then (clj_ast_guarded_prefix ">",  isNumber, terms)
+        when "<="         then (clj_ast_guarded_prefix "<=", isNumber, terms)
+        when ">="         then (clj_ast_guarded_prefix ">=", isNumber, terms)
         when "like"       then (clj_ast_regex_match make_regex, terms)
         when "regex"      then (clj_ast_regex_match identity,   terms)
         when "tagged"     then (clj_ast_tagged (first terms))
         else
-          (cons node_type (mapv clj_ast terms))
+          (cons node_type, (terms.map clj_ast))
 
-infix = (operation, terms) ->
-  [before, after] = terms
-  "(#{before} #{operation} #{after})"
+js_ast = (ast) ->
+  # "Rewrites an eval-able Clojure AST to an eval-able JS AST."
+  switch
+    when not (sequential ast)
+      ast
+
+    else
+      [node_type, terms...] = ast
+
+      (join " ", (list "(",
+                       (js_ast (first terms)),
+                       (node_type),
+                       (js_ast (second terms)),
+                       ")"))
 
 
 cache = {}
@@ -224,14 +237,14 @@ keys  = []
 "Speeds up the compilation of queries by caching map of ASTs to corresponding
 functions."
 ###
-cache_add = (key, item) ->
+fun_cache_add = (key, item) ->
   keys.push key
   cache[key] = item
   if keys.length > 64
     old = keys.shift()
     delete cache[old]
 
-cache_lookup = (key) ->
+fun_cache_lookup = (key) ->
   cache[key]
 
 fun = (ast) ->
@@ -243,19 +256,21 @@ fun = (ast) ->
   (q {:metric 1}) => false
   (q {:metric 3}) => true"
   ###
-  if fn = cache_lookup ast
+  if fn = fun_cache_lookup ast
     # Cache hit
     fn
 
   else
     # Cache miss
-    fn = eval "function(event) {" + (clj_ast ast) + "}"
-    cache_add ast, fn
+    fn = Function "event", "return " + (js_ast clj_ast ast)
+    fun_cache_add ast, fn
     fn
 
 
 RiemannQuery.ast       = ast
 RiemannQuery.antlr_ast = antlr_ast
+RiemannQuery.clj_ast   = clj_ast
+RiemannQuery.js_ast    = js_ast
 RiemannQuery.fun       = fun
 
 module.exports         = RiemannQuery
