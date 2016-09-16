@@ -1,6 +1,6 @@
 {
   "name": "riemann-query-parser",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Query parser extracted from Riemann and ported to Node",
   "main": "lib/riemann-query.js",
   "scripts": {
