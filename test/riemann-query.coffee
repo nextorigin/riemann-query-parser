@@ -80,3 +80,32 @@ describe "js-ast-test", ->
     for expression, expected of expressions
       compiled = (js_ast clj_ast ast expression)
       expect(compiled).to.equal expected
+
+describe "RiemannQuery#fun", ->
+  fn         = null
+  expression = "host ~= \"^local[a-z]+\" and state = 1e4"
+
+  beforeEach ->
+    fn = fun ast expression
+
+  afterEach ->
+    fn = null
+
+  it "should return a function", ->
+    expect(fn).to.be.a "function"
+
+  it "should return true when an object matches the expression", ->
+    event =
+      host: "localhost"
+      state: 10000
+
+    match = fn event
+    expect(match).to.be.true
+
+  it "should return false when an object doesn not match the expression", ->
+    event =
+      host: "localhost"
+      state: 9999
+
+    match = fn event
+    expect(match).to.be.false
