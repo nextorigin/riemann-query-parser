@@ -59,7 +59,7 @@ describe "js-ast-test", ->
       "state =~ \"%foo%\"":          '!!/^.*foo.*$/g.exec(event["state"])'
 
       # Tags
-      "tagged \"cat\"":              '(event.tags.indexOf(""cat"") !== -1)'
+      "tagged \"cat\"":              '(event.tags.indexOf("cat") !== -1)'
 
       # # Boolean operators
       # "not host = 1":                (not (= (:host event) 1))

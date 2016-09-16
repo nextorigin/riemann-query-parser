@@ -166,7 +166,7 @@ clj_ast_field = (field) ->
 
 clj_ast_tagged = (tag) ->
   # "Takes a tag and emits an expression to match that tag in an event."
-  "(event.tags.indexOf(\"#{tag}\") !== -1)"
+  "(event.tags.indexOf(#{tag}) !== -1)"
 
 make_regex = (str) ->
   # "Convert a string like \"foo%\" into /^foo.*$/"
