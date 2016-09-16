@@ -1,12 +1,13 @@
 util   = require "util"
 stream = require "readable-stream"
-parser = require "./riemann-query"
+Query  = require "./riemann-query"
 extend = util._extend
+{ast, fun} = Query
 
 
 class QueryStream extends stream.Transform
-  constructor: (options) ->
-    @filter = parser query
+  constructor: (query, options = {}) ->
+    @filter = fun ast query
     super extend options, objectMode: true
 
   _transform: (data, encoding, done) ->
