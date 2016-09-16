@@ -1,6 +1,6 @@
 util   = require "util"
 stream = require "readable-stream"
-parser = require "./index"
+parser = require "./riemann-query"
 extend = util._extend
 
 

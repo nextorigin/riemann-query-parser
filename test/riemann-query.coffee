@@ -1,7 +1,7 @@
 {expect}   = require "chai"
 
 
-RiemannQuery = require "../src/query"
+RiemannQuery = require "../src/riemann-query"
 {ast, clj_ast, js_ast, fun} = RiemannQuery
 
 # (deftest clj-ast-test

@@ -32,7 +32,7 @@ class RiemannQuery
 ###
 escapeRegExp = require "lodash.escaperegexp"
 
-antlr_parser = require "./index"
+antlr_parser = require "./parser"
 
 ast_predicate = (terms) ->
   # "Rewrites predicates with and/or/not to normal Clojure forms."

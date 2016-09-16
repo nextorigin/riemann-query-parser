@@ -2,7 +2,7 @@
   "name": "riemann-query-parser",
   "version": "1.0.0",
   "description": "Query parser extracted from Riemann and ported to Node",
-  "main": "index.js",
+  "main": "lib/riemann-query.js",
   "scripts": {
     "vendor:grammar-download": "curl --silent -o build/Query.g4 https://raw.githubusercontent.com/riemann/riemann/master/resources/query.g4 >/dev/null",
     "vendor:grammar-patch": "patch -p0 < ./Query.g4.patch",
