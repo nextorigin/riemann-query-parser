@@ -41,7 +41,7 @@
     "readable-stream": "^2.1.5"
   },
   "devDependencies": {
-    "chai": "^3.5.0",
+    "chai": "^4.0.0",
     "coveralls": "^2.11.12",
     "iced-coffee-coverage": "^1.0.3",
     "iced-coffee-script": "^108.0.11",
