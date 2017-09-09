@@ -1,12 +1,11 @@
 # riemann-query-parser
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/nextorigin/riemann-query-parser.svg)](https://greenkeeper.io/)
-
 [![Build Status][ci-master]][travis-ci]
 [![Coverage Status][coverage-master]][coveralls]
 [![Dependency Status][dependency]][david]
 [![devDependency Status][dev-dependency]][david-dev]
 [![Downloads][downloads]][npm]
+[![Greenkeeper badge][greenkeeper-enabled]][greenkeeper]
 
 Query parser extracted from Riemann and ported to Node
 
@@ -23,3 +22,5 @@ Query parser extracted from Riemann and ported to Node
   [downloads]: https://img.shields.io/npm/dm/riemann-query-parser.svg?style=flat-square
   [npm]: https://www.npmjs.org/package/riemann-query-parser
   [npm-stats]: https://nodei.co/npm/riemann-query-parser.png?downloads=true&downloadRank=true&stars=true
+  [greenkeeper-enabled]: https://badges.greenkeeper.io/nextorigin/spine-awaitajax.svg
+  [greenkeeper]: https://greenkeeper.io/
